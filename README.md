@@ -19,7 +19,7 @@ credentials = {
 }
 ```
 
-```
+```python
 from appchoose import data
 list_items = data.load_data('list_items', credentials = credentials)
 ```
@@ -115,7 +115,7 @@ from sklearn.model_selection import train_test_split
 A very simple model for multilabel classification is available in this repo. It
 is built upon a MobileNet architecture.
 
-```
+```python
 import tensorflow as tf
 import keras
 from keras.utils import multi_gpu_model
@@ -133,7 +133,7 @@ We use custom metrics for multilabel classification as keras default metrics are
 
 *I really think this is important since it now feels a bit like flying blind without having per class metrics on multi class classification.*
 
-```
+```python
 from appchoose.metrics import fmeasure, recall, precision
 
 model.compile(optimizer = 'Adam', loss = 'binary_crossentropy')
@@ -145,7 +145,7 @@ multi_model.compile(optimizer = 'Adam', loss = 'binary_crossentropy', metrics = 
 You need to use a data generator to generate the batches of samples that are going to be fed into
 the model. Our data generator takes a list of file paths and a list of one-hot encoded labels as inputs. 
 
-```
+```python
 from appchoose.datagen import DataGenerator
 
 training_generator = DataGenerator(X_train, y_train, batch_size = 128)
@@ -158,6 +158,6 @@ multi_model.fit_generator(generator = training_generator, validation_data = vali
 
 As `multi_model` can't be saved, you actually need to save `model`.
 
-```
+```python
 model.save('multilabel.h5')
 ```
