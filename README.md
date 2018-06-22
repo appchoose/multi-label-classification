@@ -131,7 +131,7 @@ multi_model = multi_gpu_model(model, gpus = 2)
 
 We use custom metrics for multilabel classification as keras default metrics are not suitable for this classification problem. 
 
-*I really think this is important since it now feels a bit like flying blind without having per class metrics on multi class classification.*
+*"I really think this is important since it now feels a bit like flying blind without having per class metrics on multi class classification."*
 
 ```python
 from appchoose.metrics import fmeasure, recall, precision
