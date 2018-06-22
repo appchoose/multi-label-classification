@@ -67,7 +67,7 @@ with open ('files/valid_colors', 'rb') as fp:
 with open ('files/valid_categories', 'rb') as fp:
     valid_categories = pickle.load(fp)
 
-valid_img = []
+X = []
 labels = []
 
 for idx in tqdm_notebook(range(len(list_items))):
@@ -80,6 +80,84 @@ for idx in tqdm_notebook(range(len(list_items))):
                         valid_categories = valid_categories, 
                         target_dir = target_dir)
     if (len(tmp) > 0 and os.path.exists(imgpath)):
-        valid_img.append(imgpath)
+        X.append(imgpath)
         labels.append(tmp)
+```
+
+## Train on dataset
+
+Now that we have our labels and our images ready, we can train our multilabel classifier on
+our images.
+
+#### One-hot encoding of the labels
+
+We use the `MultiLabelBinarizer` function from `sklearn` to transform our labels.
+
+```python
+from sklearn.preprocessing import MultiLabelBinarizer
+
+mlb = MultiLabelBinarizer()
+y = mlb.fit_transform(labels)
+```
+
+#### Splitting the dataset into a train set and a test set
+
+Define the size of the test set.
+
+```python
+from sklearn.model_selection import train_test_split
+
+(X_train, X_test, y_train, y_test) = train_test_split(X, y, test_size = 0.2)
+```
+
+#### Loading a model architecture
+
+A very simple model for multilabel classification is available in this repo. It
+is built upon a MobileNet architecture.
+
+```
+import tensorflow as tf
+import keras
+from keras.utils import multi_gpu_model
+from appchoose.choosemultilabel import ChooseMultiLabel 
+
+with tf.device("/cpu:0"):
+    model = ChooseMultiLabel(classes = len(mlb.classes_), trainable_layers = 10)
+
+multi_model = multi_gpu_model(model, gpus = 2)
+``` 
+
+#### Compile both models (required to save a multiGPU model)
+
+We use custom metrics for multilabel classification as keras default metrics are not suitable for this classification problem. 
+
+*I really think this is important since it now feels a bit like flying blind without having per class metrics on multi class classification.*
+
+```
+from appchoose.metrics import fmeasure, recall, precision
+
+model.compile(optimizer = 'Adam', loss = 'binary_crossentropy')
+multi_model.compile(optimizer = 'Adam', loss = 'binary_crossentropy', metrics = [fmeasure, recall, precision])
+```
+
+#### Train the model
+
+You need to use a data generator to generate the batches of samples that are going to be fed into
+the model. Our data generator takes a list of file paths and a list of one-hot encoded labels as inputs. 
+
+```
+from appchoose.datagen import DataGenerator
+
+training_generator = DataGenerator(X_train, y_train, batch_size = 128)
+validation_generator = DataGenerator(X_test, y_test, batch_size = 128)
+
+multi_model.fit_generator(generator = training_generator, validation_data = validation_generator,
+                          use_multiprocessing = True, workers = 6, epochs = 10)
+
+#### Save the model
+
+As `multi_model` can't be saved, you actually need to save `model`.
+
+```
+model.save('multilabel.h5')
 ```
