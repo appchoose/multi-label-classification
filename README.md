@@ -17,7 +17,10 @@ credentials = {
     'ES_PORT': ...,
     'ES_SCHEME': '...',
 }
+```
 
+```
+from appchoose import data
 list_items = data.load_data('list_items', credentials = credentials)
 ```
 
@@ -30,13 +33,12 @@ One of the biggest bottlenecks that we have experienced came from resizing our i
 
 ```python
 from appchoose import download
-from tqdm import tqdm_notebook 
+from tqdm import tqdm 
 
-target_dir = '/home/keurcien/projects/multi-label-classification/zalando'
-aws = 'https://s3.amazonaws.com/crawler.appchoose.io/img/'
+target_dir = '/home/...'
+aws = 'https://...'
 
-list(map(lambda x: download.img_downloader(x['_source'], target_dir = target_dir, aws = aws), 
-         tqdm_notebook(list_items)))
+list(map(lambda x: download.img_downloader(x['_source'], target_dir = target_dir, aws = aws), tqdm(list_items)))
 ```
 
 ## Generate the labels
@@ -69,13 +71,13 @@ valid_img = []
 labels = []
 
 for idx in tqdm_notebook(range(len(list_items))):
-    obj = download.extract_filepath(list_items[idx]['_source'], aws = 'https://s3.amazonaws.com/crawler.appchoose.io/img/')
+    obj = download.extract_filepath(source = list_items[idx]['_source'], aws = aws)
     imgpath = '/'.join([target_dir, obj[0], obj[1]])
-    tmp = tag.tag_image(list_items[idx]['_source'], 
-                        categories, 
-                        wbcolors, 
-                        valid_colors, 
-                        valid_categories, 
+    tmp = tag.tag_image(source = list_items[idx]['_source'], 
+                        categories = categories, 
+                        wbclrs = wbcolors, 
+                        valid_colors = valid_colors, 
+                        valid_categories = valid_categories, 
                         target_dir = target_dir)
     if (len(tmp) > 0 and os.path.exists(imgpath)):
         valid_img.append(imgpath)
