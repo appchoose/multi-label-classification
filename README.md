@@ -44,7 +44,7 @@ list(map(lambda x: download.img_downloader(x['_source'], target_dir = target_dir
 ## Generate the labels
 
 Probably the most important task. The code presented here is far from being perfect, but
-it gives a simple workflow of how this can be done. Tags (categories and colors) we are
+it gives an overview of how this can be done. Tags (categories and colors) we are
 interested in are defined in separate files (`files/categories` and `files/webcolors`). 
 Corrected and/or simplified versions of these tags are also stored in pickled files 
 (`files/valid_categories` and `files/valid_colors`).
