@@ -6,7 +6,7 @@
 
 Define the parameters required to retrieve the data with Elasticsearch.
 
-```{python}
+```python
 credentials = {
     'ES_HOST': ['...'],
     'ES_USR': '...',
