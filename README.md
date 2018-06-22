@@ -153,6 +153,7 @@ validation_generator = DataGenerator(X_test, y_test, batch_size = 128)
 
 multi_model.fit_generator(generator = training_generator, validation_data = validation_generator,
                           use_multiprocessing = True, workers = 6, epochs = 10)
+```                          
 
 #### Save the model
 
